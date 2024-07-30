@@ -42,6 +42,12 @@ pipeline {
             }
         }
 
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'dist/**/*', allowEmptyArchive: true
+            }
+        }
+
         stage('Deploy') {
             steps {
                 // Example deploy step
@@ -52,7 +58,6 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'dist/your-app/**/*', allowEmptyArchive: true
             junit 'path/to/your/test-results.xml'
         }
         success {
