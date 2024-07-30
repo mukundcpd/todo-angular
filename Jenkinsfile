@@ -2,72 +2,70 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS' // Ensure NodeJS tool is configured
+        nodejs 'NodeJS' // Replace with the name you gave NodeJS installation in Jenkins
     }
 
     stages {
         stage('Checkout') {
             steps {
+                // Checkout code from Git repository
                 git credentialsId: 'jenkin-cicd-angular1', url: 'https://github.com/mukundcpd/todo-angular.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                // Install npm dependencies
+                sh 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'npm test'
+                // Run unit tests
+                sh 'npm test'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'npm run build --prod'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                bat 'docker build -t todo-angular .'
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                bat 'docker run -p 8000:8000 -d todo-angular'
+                // Build the Angular application
+                sh 'npm run build --prod'
             }
         }
 
         stage('Archive Artifacts') {
             steps {
+                // Archive the build artifacts
                 archiveArtifacts artifacts: 'dist/**/*', allowEmptyArchive: true
             }
         }
 
         stage('Deploy') {
             steps {
-                // Example deploy step
-                bat 'scp -r dist/todo-angular/* user@server:/path/to/deploy'
+                // Add deployment steps here if needed
+                // For example, copying build files to a server
+                // sh 'scp -r dist/todo-angular/* user@server:/path/to/deploy'
             }
         }
     }
 
     post {
         always {
-            junit 'path/to/your/test-results.xml'
+            // Archive test results if available
+            junit '**/test-results/*.xml'
         }
         success {
+            // Send success email or notifications
             mail to: 'team@example.com',
                  subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                  body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded."
         }
         failure {
+            // Send failure email or notifications
             mail to: 'team@example.com',
-                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
+                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.",
+                 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
         }
     }
 }
