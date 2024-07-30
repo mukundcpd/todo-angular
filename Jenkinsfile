@@ -14,19 +14,19 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test'
+                bat 'npm test'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build --prod'
+                bat 'npm run build --prod'
             }
         }
 
@@ -34,15 +34,17 @@ pipeline {
             steps {
                 // Add your deployment steps here
                 // For example, copying build files to a server
-                sh 'scp -r dist/todo-angular/* user@server:/path/to/deploy'
+                // If you are using a Windows server for deployment, you can use robocopy or xcopy
+                bat 'robocopy dist\\todo-angular\\ \\path\\to\\deploy /E /Z /COPYALL /R:0 /W:0'
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'dist/your-app/**/*', allowEmptyArchive: true
-            junit 'path/to/your/test-results.xml'
+            archiveArtifacts artifacts: 'dist\\todo-angular\\**\\*', allowEmptyArchive: true
+            // Update the path to your test results if you have them
+            junit 'path\\to\\your\\test-results.xml'
         }
         success {
             mail to: 'team@example.com',
