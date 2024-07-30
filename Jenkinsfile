@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS' // The name you gave NodeJS installation
+        nodejs 'NodeJS' // Ensure NodeJS tool is configured
     }
 
     stages {
@@ -30,21 +30,30 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t todo-angular .'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                bat 'docker run -p 8000:8000 -d todo-angular'
+            }
+        }
+
         stage('Deploy') {
             steps {
-                // Add your deployment steps here
-                // For example, copying build files to a server
-                // If you are using a Windows server for deployment, you can use robocopy or xcopy
-                bat 'robocopy dist\\todo-angular\\ \\path\\to\\deploy /E /Z /COPYALL /R:0 /W:0'
+                // Example deploy step
+                bat 'scp -r dist/todo-angular/* user@server:/path/to/deploy'
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'dist\\todo-angular\\**\\*', allowEmptyArchive: true
-            // Update the path to your test results if you have them
-            junit 'path\\to\\your\\test-results.xml'
+            archiveArtifacts artifacts: 'dist/your-app/**/*', allowEmptyArchive: true
+            junit 'path/to/your/test-results.xml'
         }
         success {
             mail to: 'team@example.com',
