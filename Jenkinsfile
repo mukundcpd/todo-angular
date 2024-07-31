@@ -5,6 +5,10 @@ pipeline {
         nodejs 'NodeJS' // The name you gave NodeJS installation
     }
 
+    environment {
+        DOCKER_CREDENTIALS_ID = 'docker-credentials-id' // Update with your Docker credentials ID
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -57,10 +61,14 @@ pipeline {
         stage('Docker Build and Push') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-credentials-id') {
+                    echo 'Unstashing build artifacts for Docker build...'
+                    unstash 'build-artifacts'
+                    echo 'Building Docker image...'
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         def appImage = docker.build('mukuncpd/todo-angular', '--build-arg CACHEBUST=$(date +%s) .')
                         appImage.push('latest')
                     }
+                    echo 'Docker image built and pushed.'
                 }
             }
         }
