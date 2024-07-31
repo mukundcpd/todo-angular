@@ -14,7 +14,7 @@ RUN npm run build --prod
 # Stage 2: Serve the app with Nginx
 FROM nginx:alpine as start-stage
 # Copy the built Angular app from the build stage to the Nginx html directory
-COPY --from=build-stage /app/dist/todo /usr/share/nginx/html
+COPY --from=build-stage /app/dist/todo/browser /usr/share/nginx/html
 # Expose port 80 for the Nginx server
 EXPOSE 80
 # Run Nginx in the foreground (default command)
