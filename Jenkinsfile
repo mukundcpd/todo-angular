@@ -40,7 +40,7 @@ pipeline {
                 sh 'npm run build --prod'
                 echo 'Build complete.'
                 echo 'Stashing build artifacts...'
-                stash includes: 'dist/**/*', name: 'build-artifacts'
+                stash includes: 'dist/todo/**/*', name: 'build-artifacts'
                 echo 'Build artifacts stashed.'
             }
         }
@@ -61,8 +61,6 @@ pipeline {
         stage('Docker Build and Push') {
             steps {
                 script {
-                    echo 'Unstashing build artifacts for Docker build...'
-                    unstash 'build-artifacts'
                     echo 'Building Docker image...'
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         def appImage = docker.build('mukuncpd/todo-angular', '--build-arg CACHEBUST=$(date +%s) .')
@@ -77,7 +75,7 @@ pipeline {
     post {
         always {
             echo 'Archiving artifacts...'
-            archiveArtifacts artifacts: 'dist/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'dist/todo/**/*', allowEmptyArchive: true
             echo 'Artifacts archived.'
             echo 'Publishing test results...'
             junit '**/TEST-*.xml'
